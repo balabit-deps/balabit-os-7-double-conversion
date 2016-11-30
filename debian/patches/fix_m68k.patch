@@ -1,0 +1,19 @@
+Description: Support m68k
+Author: Thorsten Glaser <tg@mirbsd.de>
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=699849
+Reviewed-by: Sébastien Villemot <sebastien@debian.org>
+Last-Update: 2015-04-30
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/src/utils.h
++++ b/src/utils.h
+@@ -70,6 +70,9 @@
+ #else
+ #undef DOUBLE_CONVERSION_CORRECT_DOUBLE_OPERATIONS
+ #endif  // _WIN32
++#elif defined(__m68k__)
++// The MC68881 also uses an 80bit wide floating point stack.
++#undef DOUBLE_CONVERSION_CORRECT_DOUBLE_OPERATIONS
+ #else
+ #error Target architecture was not detected as supported by Double-Conversion.
+ #endif

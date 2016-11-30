@@ -1,0 +1,66 @@
+#!/usr/bin/make -f
+
+# Get compilation flags from dpkg-buildflags
+include /usr/share/dpkg/default.mk
+ifeq ($(origin CXX),default)
+       CXX = $(DEB_HOST_GNU_TYPE)-g++
+endif
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	MAKEFLAGS += -j$(NUMJOBS)
+endif
+
+%:
+	dh $@
+
+SO=1
+VERS=$(SO).0
+
+SRC=$(sort $(wildcard src/*.cc))
+OBJ=$(SRC:.cc=.o)
+
+TEST_SRC=$(sort $(wildcard test/cctest/*.cc))
+TEST_OBJ=$(TEST_SRC:.cc=.o)
+
+CPPFLAGS += -Isrc/
+
+debian/shared_dir debian/static_dir:
+	mkdir -p $(subst _dir,,$(@))
+	touch $@
+
+$(subst src/,debian/static/,$(OBJ)): \
+  debian/static/%.o : src/%.cc debian/static_dir
+
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+$(subst src/,debian/shared/,$(OBJ)): \
+  debian/shared/%.o : src/%.cc debian/shared_dir
+
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC -c $< -o $@
+
+libdouble-conversion.so: libdouble-conversion.so.$(SO)
+	ln -snf $< $@
+
+libdouble-conversion.so.$(SO): libdouble-conversion.so.$(VERS)
+	ln -snf $< $@
+
+libdouble-conversion.so.$(VERS): $(subst src/,debian/shared/,$(OBJ))
+	$(CXX) $(LDFLAGS) -shared -Wl,-soname=libdouble-conversion.so.$(SO) -o $@ $^
+
+libdouble-conversion.a: $(subst src/,debian/static/,$(OBJ))
+	ar r $@ $^
+
+run_tests: $(TEST_OBJ) libdouble-conversion.a
+	$(CXX) $(LDFLAGS) -o run_tests $^
+
+override_dh_auto_build: libdouble-conversion.so libdouble-conversion.a run_tests
+
+override_dh_auto_clean:
+	rm -f libdouble-conversion.* run_tests test/cctest/*.o
+	rm -rf debian/shared debian/static
+	rm -f debian/static_dir debian/shared_dir
+
+get-orig-source:
+	uscan --force-download --rename --destdir .
+.PHONY: get-orig-source

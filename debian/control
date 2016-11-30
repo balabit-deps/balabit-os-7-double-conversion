@@ -1,0 +1,48 @@
+Source: double-conversion
+Priority: extra
+Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
+Uploaders: Sébastien Villemot <sebastien@debian.org>
+Build-Depends: debhelper (>= 10), dh-exec
+Standards-Version: 3.9.8
+Section: libs
+Homepage: https://github.com/floitsch/double-conversion
+Vcs-Git: https://anonscm.debian.org/git/debian-science/packages/double-conversion.git
+Vcs-Browser: https://anonscm.debian.org/git/debian-science/packages/double-conversion.git
+
+Package: libdouble-conversion1
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: libdouble-conversion1v5
+Replaces: libdouble-conversion1v5
+Description: routines to convert IEEE floats to and from strings
+ This library provides routines to convert IEEE single and double floats to and
+ from string representations. It offers at lot of flexibility with respect to
+ the conversion format: shortest, fixed, precision or exponential
+ representation; decimal, octal or hexadecimal basis; control over number of
+ digits, leading/trailing zeros and spaces.
+ .
+ The library consists of efficient conversion routines that have been
+ extracted from the V8 JavaScript engine. The code has been refactored
+ and improved so that it can be used more easily in other projects.
+ .
+ This package contains a shared version of the library.
+
+Package: libdouble-conversion-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: libdouble-conversion1 (= ${binary:Version}), ${misc:Depends}
+Description: routines to convert IEEE floats to and from strings (development files)
+ This library provides routines to convert IEEE single and double floats to and
+ from string representations. It offers at lot of flexibility with respect to
+ the conversion format: shortest, fixed, precision or exponential
+ representation; decimal, octal or hexadecimal basis; control over number of
+ digits, leading/trailing zeros and spaces.
+ .
+ The library consists of efficient conversion routines that have been
+ extracted from the V8 JavaScript engine. The code has been refactored
+ and improved so that it can be used more easily in other projects.
+ .
+ This package contains a static version of the library and development headers.
